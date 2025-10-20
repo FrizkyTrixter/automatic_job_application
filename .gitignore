@@ -1,0 +1,30 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+.env
+.env.*
+*.log
+
+# Playwright
+playwright/.cache/
+test-results/
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Project outputs
+letters*/
+out*/
+**/job_meta.json
+**/job_description.txt
+**/resume_tailored.txt
+**/cover_letter_tailored.txt
+**/package.md
