@@ -6,7 +6,12 @@ __pycache__/
 
 # Virtual environments
 venv/
+.venv/
+env/
+
+# Environment variables
 .env
+*.env
 
 # OS files
 .DS_Store
@@ -14,16 +19,19 @@ Thumbs.db
 
 # Database
 applications.db
+*.sqlite
+*.db
 
 # Logs
 *.log
 
-# Generated outputs
+# Generated AI outputs
+data/generated/
 data/outputs/
 
-# Sensitive files
-*.env
-
+# Sensitive candidate data
+data/resumes/
+data/covers/
 
 # IDE
 .vscode/

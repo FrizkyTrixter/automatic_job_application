@@ -1,4 +1,5 @@
 import sqlite3
+from datetime import datetime
 from config import DATABASE_PATH
 
 
@@ -23,12 +24,34 @@ def init_db():
         description TEXT,
         ats_job_id TEXT,
         fit_score INTEGER,
-        status TEXT DEFAULT 'discovered'
+        status TEXT DEFAULT 'discovered',
+        resume_path TEXT,
+        cover_letter_path TEXT,
+        application_packet_path TEXT,
+        generated_at TEXT
     )
     """)
 
+    existing_columns = get_existing_columns(cur, "jobs")
+
+    migrations = {
+        "resume_path": "ALTER TABLE jobs ADD COLUMN resume_path TEXT",
+        "cover_letter_path": "ALTER TABLE jobs ADD COLUMN cover_letter_path TEXT",
+        "application_packet_path": "ALTER TABLE jobs ADD COLUMN application_packet_path TEXT",
+        "generated_at": "ALTER TABLE jobs ADD COLUMN generated_at TEXT",
+    }
+
+    for column, sql in migrations.items():
+        if column not in existing_columns:
+            cur.execute(sql)
+
     conn.commit()
     conn.close()
+
+
+def get_existing_columns(cur, table_name):
+    cur.execute(f"PRAGMA table_info({table_name})")
+    return {row["name"] for row in cur.fetchall()}
 
 
 def save_job(job):
@@ -99,6 +122,31 @@ def update_job_status(job_id, status):
     SET status = ?
     WHERE id = ?
     """, (status, job_id))
+
+    conn.commit()
+    conn.close()
+
+
+def update_generated_files(job_id, resume_path, cover_letter_path, application_packet_path):
+    conn = get_connection()
+    cur = conn.cursor()
+
+    cur.execute("""
+    UPDATE jobs
+    SET resume_path = ?,
+        cover_letter_path = ?,
+        application_packet_path = ?,
+        generated_at = ?,
+        status = ?
+    WHERE id = ?
+    """, (
+        resume_path,
+        cover_letter_path,
+        application_packet_path,
+        datetime.utcnow().isoformat(),
+        "generated",
+        job_id
+    ))
 
     conn.commit()
     conn.close()
