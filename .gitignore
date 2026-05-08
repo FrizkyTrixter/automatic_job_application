@@ -23,7 +23,7 @@ data/outputs/
 
 # Sensitive files
 *.env
-config.py
+
 
 # IDE
 .vscode/

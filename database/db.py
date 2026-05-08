@@ -1,8 +1,12 @@
 import sqlite3
 from config import DATABASE_PATH
 
+
 def get_connection():
-    return sqlite3.connect(DATABASE_PATH)
+    conn = sqlite3.connect(DATABASE_PATH)
+    conn.row_factory = sqlite3.Row
+    return conn
+
 
 def init_db():
     conn = get_connection()
@@ -25,6 +29,7 @@ def init_db():
 
     conn.commit()
     conn.close()
+
 
 def save_job(job):
     conn = get_connection()
@@ -49,11 +54,67 @@ def save_job(job):
     conn.commit()
     conn.close()
 
-def get_jobs():
+
+def get_jobs(status=None, limit=None):
     conn = get_connection()
-    conn.row_factory = sqlite3.Row
     cur = conn.cursor()
-    cur.execute("SELECT * FROM jobs ORDER BY fit_score DESC")
+
+    query = "SELECT * FROM jobs"
+    params = []
+
+    if status:
+        query += " WHERE status = ?"
+        params.append(status)
+
+    query += " ORDER BY fit_score DESC"
+
+    if limit:
+        query += " LIMIT ?"
+        params.append(limit)
+
+    cur.execute(query, params)
+    rows = [dict(row) for row in cur.fetchall()]
+
+    conn.close()
+    return rows
+
+
+def get_job_by_id(job_id):
+    conn = get_connection()
+    cur = conn.cursor()
+
+    cur.execute("SELECT * FROM jobs WHERE id = ?", (job_id,))
+    row = cur.fetchone()
+
+    conn.close()
+    return dict(row) if row else None
+
+
+def update_job_status(job_id, status):
+    conn = get_connection()
+    cur = conn.cursor()
+
+    cur.execute("""
+    UPDATE jobs
+    SET status = ?
+    WHERE id = ?
+    """, (status, job_id))
+
+    conn.commit()
+    conn.close()
+
+
+def get_status_counts():
+    conn = get_connection()
+    cur = conn.cursor()
+
+    cur.execute("""
+    SELECT status, COUNT(*) AS count
+    FROM jobs
+    GROUP BY status
+    ORDER BY count DESC
+    """)
+
     rows = [dict(row) for row in cur.fetchall()]
     conn.close()
     return rows

@@ -1,9 +1,10 @@
 import argparse
 
-from database.db import init_db, save_job, get_jobs
+from database.db import init_db, save_job, get_jobs, update_job_status
 from discovery.greenhouse import fetch_greenhouse_jobs
 from matching.fit_scorer import score_job
 from submission.ats_submitter import submit_application
+from approval.review_queue import review_jobs
 
 CANDIDATE = {
     "first_name": "Mateo",
@@ -12,6 +13,7 @@ CANDIDATE = {
     "email": "CHANGE_ME@example.com",
     "phone": "",
 }
+
 
 def discover(args):
     init_db()
@@ -30,6 +32,7 @@ def discover(args):
         if job["fit_score"] <= 0:
             continue
 
+        job["status"] = "discovered"
         save_job(job)
         scored.append(job)
 
@@ -40,12 +43,18 @@ def discover(args):
     for job in scored[:args.show]:
         print(f"{job['title']} @ {job['company']} | {job['location']} | score={job['fit_score']}")
 
+
+def review(args):
+    init_db()
+    review_jobs(limit=args.limit, status=args.status)
+
+
 def submit_dry_run(args):
     init_db()
 
-    jobs = get_jobs()[:args.limit]
+    jobs = get_jobs(status=args.status, limit=args.limit)
 
-    print(f"\nRunning dry run for {len(jobs)} jobs...")
+    print(f"\nRunning dry run for {len(jobs)} jobs with status '{args.status}'...")
 
     for job in jobs:
         print("\n" + "=" * 80)
@@ -61,6 +70,27 @@ def submit_dry_run(args):
 
         print(result)
 
+        if args.mark_ready:
+            update_job_status(job["id"], "dry_run_ready")
+            print("Marked as dry_run_ready.")
+
+
+def list_jobs(args):
+    init_db()
+
+    jobs = get_jobs(status=args.status, limit=args.limit)
+
+    if not jobs:
+        print("No jobs found.")
+        return
+
+    for job in jobs:
+        print(
+            f"[{job['id']}] {job['title']} @ {job['company']} | "
+            f"{job['location']} | score={job['fit_score']} | status={job['status']}"
+        )
+
+
 def main():
     parser = argparse.ArgumentParser(description="Agentic Job Protocol MVP")
     sub = parser.add_subparsers(dest="command")
@@ -72,10 +102,22 @@ def main():
     p_discover.add_argument("--show", type=int, default=25)
     p_discover.set_defaults(func=discover)
 
+    p_review = sub.add_parser("review")
+    p_review.add_argument("--limit", type=int, default=25)
+    p_review.add_argument("--status", default="discovered")
+    p_review.set_defaults(func=review)
+
+    p_list = sub.add_parser("list")
+    p_list.add_argument("--limit", type=int, default=50)
+    p_list.add_argument("--status", default=None)
+    p_list.set_defaults(func=list_jobs)
+
     p_submit = sub.add_parser("submit-dry-run")
     p_submit.add_argument("--limit", type=int, default=5)
+    p_submit.add_argument("--status", default="approved")
     p_submit.add_argument("--resume", default="data/resumes/resume.txt")
     p_submit.add_argument("--cover", default=None)
+    p_submit.add_argument("--mark-ready", action="store_true")
     p_submit.set_defaults(func=submit_dry_run)
 
     args = parser.parse_args()
@@ -85,6 +127,7 @@ def main():
         return
 
     args.func(args)
+
 
 if __name__ == "__main__":
     main()
