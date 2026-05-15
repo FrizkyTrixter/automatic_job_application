@@ -1,3 +1,1 @@
-Mateo Day
-
-Software developer with experience in Python, AI/ML workflows, APIs, databases, automation, and full-stack software projects.
+Mateo Day test resume. Python SQL AI data engineering.

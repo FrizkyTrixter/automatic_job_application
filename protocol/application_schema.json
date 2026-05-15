@@ -1,0 +1,47 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.com/agentic-job-protocol/application_schema.json",
+  "title": "Application Packet",
+  "type": "object",
+  "required": ["job", "candidate", "documents", "status"],
+  "properties": {
+    "job": {
+      "type": "object",
+      "required": ["company", "title", "url"],
+      "properties": {
+        "id": {"type": ["integer", "string", "null"]},
+        "source": {"type": "string"},
+        "company": {"type": "string"},
+        "title": {"type": "string"},
+        "location": {"type": "string"},
+        "url": {"type": "string"},
+        "fit_score": {"type": ["integer", "number"]}
+      },
+      "additionalProperties": true
+    },
+    "candidate": {
+      "type": "object",
+      "required": ["name", "email"],
+      "properties": {
+        "name": {"type": "string"},
+        "email": {"type": "string"},
+        "phone": {"type": "string"}
+      },
+      "additionalProperties": true
+    },
+    "documents": {
+      "type": "object",
+      "properties": {
+        "resume_path": {"type": ["string", "null"]},
+        "cover_letter_path": {"type": ["string", "null"]},
+        "application_packet_path": {"type": ["string", "null"]}
+      },
+      "additionalProperties": false
+    },
+    "status": {
+      "type": "string",
+      "enum": ["discovered", "approved", "rejected", "generated", "dry_run_ready", "submitted", "failed"]
+    }
+  },
+  "additionalProperties": true
+}

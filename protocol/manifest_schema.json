@@ -1,0 +1,30 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.com/agentic-job-protocol/manifest_schema.json",
+  "title": "Agentic Job Protocol Manifest",
+  "type": "object",
+  "required": ["protocol", "name", "version", "capabilities", "endpoints"],
+  "properties": {
+    "protocol": {"const": "agentic-job-protocol"},
+    "name": {"type": "string"},
+    "version": {"type": "string"},
+    "description": {"type": "string"},
+    "capabilities": {
+      "type": "array",
+      "items": {"type": "string"},
+      "uniqueItems": true
+    },
+    "endpoints": {
+      "type": "object",
+      "properties": {
+        "discover": {"type": "string"},
+        "score": {"type": "string"},
+        "generate": {"type": "string"},
+        "review": {"type": "string"},
+        "submitDryRun": {"type": "string"}
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

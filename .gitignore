@@ -1,17 +1,24 @@
 # Python
 __pycache__/
-*.pyc
-*.pyo
-*.pyd
+*.py[cod]
+*$py.class
+
+# Build artifacts
+build/
+dist/
+*.egg-info/
 
 # Virtual environments
 venv/
 .venv/
 env/
 
-# Environment variables
+# Environment variables / secrets
 .env
 *.env
+.env.*
+secrets.json
+credentials.json
 
 # OS files
 .DS_Store
@@ -20,6 +27,7 @@ Thumbs.db
 # Database
 applications.db
 *.sqlite
+*.sqlite3
 *.db
 
 # Logs
@@ -32,7 +40,26 @@ data/outputs/
 # Sensitive candidate data
 data/resumes/
 data/covers/
+data/cover_letters/
+
+# Local config
+config.py
+
+# API keys / tokens
+*.pem
+*.key
 
 # IDE
 .vscode/
 .idea/
+
+# pytest / tooling
+.pytest_cache/
+.mypy_cache/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Temporary files
+tmp/
+temp/
